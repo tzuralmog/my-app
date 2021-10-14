@@ -1,31 +1,46 @@
 import Header from "./components/Header";
 import Tasks from './components/Tasks'
-import { useState} from 'react'
-import Task from "./components/Task";
+import { useState, useEffect} from 'react'
+import AddTask from "./components/AddTask";
 
 
 function App() {
+
+  const[showAddTask,setShowAddTask] = useState(false)
+
   const [tasks, setTasks] = useState([{
     text: "OMG",
     id:0,
-    remider:false,
+    reminder:false,
     day:"Thursday",
 },{
     text: "OMG Lol",
     id:1,
-    remider:false,
+    reminder:false,
     day:"Friday",
 },{
     text: "OMG BUG",
     id:2,
-    remider:true,
+    reminder:false,
     day:"Saturday",
 },])
 
+// add task
+const addTask = (task) => {
+  // setTasks( tasks.filter((task) => task.id !== id))
+  const id = Math.floor (Math.random() * 1000) +1
+  const newTask = {id , ...task}
+  setTasks([...tasks,newTask])
+}
+
 // delete task
 const deleteTask = (id) => {
-  // console.log("delete ", id)
   setTasks( tasks.filter((task) => task.id !== id))
+}
+
+//toggle
+const toggleReminder = (id) => {
+  setTasks(tasks.map((task) => task.id === id ? {...task , reminder: !task.reminder}: task))
 }
 
 
@@ -33,8 +48,9 @@ const deleteTask = (id) => {
     <div className="container">
       {/* <h1>Testing auto resolve</h1>
       <h2> Hello {name}</h2> */}
-      <Header title="Room 1"/>
-      { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} /> : "No Tasks to show"}
+      <Header title="Room 1" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
+      {showAddTask && <AddTask onAdd = {addTask}/>}
+      { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : "No Tasks to show"}
       
     </div>
   );
