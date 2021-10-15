@@ -31,8 +31,15 @@ useEffect( () => {
     // console.log(JSON.stringify(tasksFromServer))
     console.log(user)
     console.log(user.company.companyId)
+
     const buildingList = await fetchBuildings()
-    console.log(buildingList)
+    // console.log(buildingList)
+    const mainOffice = buildingList.content.filter((building) => building.name === "Main Office").shift()
+    console.log(mainOffice)
+    const mainOfficeID = mainOffice.id
+    console.log(mainOfficeID)
+    const groundFloorId = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift().id
+    console.log(groundFloorId)
   }
   getBasics()
   
@@ -53,14 +60,15 @@ const fetchUser = async () => {
 
 // fetch building
 const fetchBuildings = async () => {
-  const res = await fetch(`https://apps.cloud.us.kontakt.io/v2/locations/buildings?
+  const http = `https://apps.cloud.us.kontakt.io/v2/locations/buildings?
   page=0
   &size=50
-  &sort=name
-  &name=PgiyxtTDWdxN
-  &description=mToZlpFAyvnJwVFqGovYXHVZEhCdnOrt
-  &floorName=kbsvhWOwFbvV
-  &buildingId=25824`,{
+  &sort=name`
+  const httpTEST = `https://apps.cloud.us.kontakt.io/v2/locations/buildings?
+  page=0
+  &size=50
+  &sort=name`
+  const res = await fetch(http,{
     method: 'GET',
     headers: {
       "Content-Type" : "application/json",
