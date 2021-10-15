@@ -25,6 +25,23 @@ function App() {
     day:"Saturday",
 },])
 
+useEffect( () => {
+  const fetchTasks = async () => {
+    const res = await fetch('https://apps.cloud.us.kontakt.io/v2/locations/buildings/36029',{
+      method: 'GET',
+      headers: {
+        "Content-Type" : "application/json",
+        "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+      },
+    })
+    const data = res.json()
+    console.log(data)
+    // console.log(JSON.stringify( data))
+    return data
+  }
+  fetchTasks()
+},[])
+
 // add task
 const addTask = (task) => {
   // setTasks( tasks.filter((task) => task.id !== id))
