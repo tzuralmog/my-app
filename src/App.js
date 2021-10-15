@@ -26,21 +26,50 @@ function App() {
 },])
 
 useEffect( () => {
-  const fetchTasks = async () => {
-    const res = await fetch('https://apps.cloud.us.kontakt.io/v2/locations/buildings/36029',{
-      method: 'GET',
-      headers: {
-        "Content-Type" : "application/json",
-        "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-      },
-    })
-    const data = res.json()
-    console.log(data)
-    // console.log(JSON.stringify( data))
-    return data
+  const getBasics = async () => {
+    const user = await fetchUser()
+    // console.log(JSON.stringify(tasksFromServer))
+    console.log(user)
+    console.log(user.company.companyId)
+    const buildingList = await fetchBuildings()
+    console.log(buildingList)
   }
-  fetchTasks()
+  getBasics()
+  
 },[])
+
+// fetch user
+const fetchUser = async () => {
+  const res = await fetch('https://apps.cloud.us.kontakt.io/v2/organization/account/me',{
+    method: 'GET',
+    headers: {
+      "Content-Type" : "application/json",
+      "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+    },
+  })
+  const data = await res.json()
+  return data
+}
+
+// fetch building
+const fetchBuildings = async () => {
+  const res = await fetch(`https://apps.cloud.us.kontakt.io/v2/locations/buildings?
+  page=0
+  &size=50
+  &sort=name
+  &name=PgiyxtTDWdxN
+  &description=mToZlpFAyvnJwVFqGovYXHVZEhCdnOrt
+  &floorName=kbsvhWOwFbvV
+  &buildingId=25824`,{
+    method: 'GET',
+    headers: {
+      "Content-Type" : "application/json",
+      "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+    },
+  })
+  const data = await res.json()
+  return data
+}
 
 // add task
 const addTask = (task) => {
@@ -65,7 +94,7 @@ const toggleReminder = (id) => {
     <div className="container">
       {/* <h1>Testing auto resolve</h1>
       <h2> Hello {name}</h2> */}
-      <Header title="Room 1" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
+      <Header title="Rooms" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
       {showAddTask && <AddTask onAdd = {addTask}/>}
       { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : "No Tasks to show"}
       
