@@ -16,25 +16,31 @@ useEffect( () => {
   const getBasics = async () => {
     const user = await fetchUser()
     // console.log(JSON.stringify(tasksFromServer))
-    console.log(user)
-    console.log(user.company.companyId)
+    // console.log(user)
+    console.log( "companyId =" + user.company.companyId)
 
     const buildingList = await fetchBuildings()
     // console.log(buildingList)
     const mainOffice = buildingList.content.filter((building) => building.name === "Main Office").shift()
-    console.log(mainOffice)
+    // console.log(mainOffice)
     const mainOfficeID = mainOffice.id
-    console.log(mainOfficeID)
+    console.log("mainOfficeID =" + mainOfficeID)
     const groundFloorId = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift().id
-    console.log(groundFloorId)
+    console.log( "groundFloorId =" + groundFloorId)
 
     const rooms = await fetchRooms(groundFloorId)
-    console.log(rooms.content)
+    // console.log(rooms.content)
     setTasks(rooms.content)
 
     const positions = await fetchPositions(groundFloorId)
+    console.log("positions")
     console.log(positions)
 
+    const occupancy = await fetchOccupancy(groundFloorId)
+    console.log("occupancy")    
+    console.log(occupancy)
+
+    
     
     
   }
@@ -90,7 +96,7 @@ const fetchRooms = async (floorId) => {
   return data
 }
 
-// fetch occupancy
+// fetch positions
 const fetchPositions = async (floorId) => {
   const http = `https://apps.cloud.us.kontakt.io/v2/positions?
   page=0
@@ -113,6 +119,23 @@ const fetchPositions = async (floorId) => {
   &entityId=
   &lost=false`
   const res = await fetch(httpT,{
+    method: 'GET',
+    headers: {
+      "Content-Type" : "application/json",
+      "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+    },
+  })
+  const data = await res.json()
+  return data
+}
+
+// fetch occupancy
+const fetchOccupancy = async (floorId) => {
+  const http = `https://apps.cloud.us.kontakt.io/v3/presences?
+  page=0
+  &sort=endTime,desc
+  &floorId=${floorId}`
+  const res = await fetch(http,{
     method: 'GET',
     headers: {
       "Content-Type" : "application/json",
