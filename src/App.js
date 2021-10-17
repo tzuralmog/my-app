@@ -2,6 +2,7 @@ import Header from "./components/Header";
 import Tasks from './components/Tasks'
 import { useState, useEffect} from 'react'
 import AddTask from "./components/AddTask";
+import Rooms from "./components/Rooms";
 
 
 function App() {
@@ -9,6 +10,8 @@ function App() {
   const[showAddTask,setShowAddTask] = useState(false)
 
   const [tasks, setTasks] = useState([])
+
+
 
 // var companyId , mainOfficeID  , groundFloorId 
 
@@ -171,8 +174,9 @@ const toggleReminder = (id) => {
     <div className="container">
       {/* <h1>Testing auto resolve</h1>
       <h2> Hello {name}</h2> */}
-      <Header title="Rooms" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
-      <img src="FloorPlan.png" alt="Floor Plan" className ="floorPlan" ></img>
+      <Header title="Ground Floor" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
+      {tasks.length > 0 ? <Rooms  rooms = {tasks}/> :<div className="loader"></div>}
+      
       {showAddTask && <AddTask onAdd = {addTask}/>}
       { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : <p>No rooms to show</p> }
       {/* <canvas id="myCanvas" width="200" height="100"></canvas> */}

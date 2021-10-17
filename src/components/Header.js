@@ -11,7 +11,7 @@ const Header = ({title,onAdd, showAdd}) => {
 }
 
 Header.defaultProps = {
-    title: "Default Room"
+    title: "Floor"
 }
 
 Header.propTypes = {
