@@ -115,8 +115,7 @@ footer {
 
 .floorPlan {
   width: 100%;
-  height: 100%;
-  size:cover;
+  object-fit: cover;
 }
 
 .loader {
@@ -134,8 +133,9 @@ footer {
 }
 
 .roomBox {
-  /* position: absolute; */
-  background-color: blue;
+  position: absolute;
+  background-color: rgba(20, 20, 150, 0.473);
+  /* opacity: 20%; */
 }
 
 .roomBoxTitle {
@@ -143,6 +143,5 @@ footer {
 }
 
 .pictureDiv{
-  background-image: "url('./FloorPlan.png')";
-  background-size: cover;
+  position: relative;
 }

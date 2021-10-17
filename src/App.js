@@ -10,7 +10,8 @@ function App() {
   const[showAddTask,setShowAddTask] = useState(false)
 
   const [tasks, setTasks] = useState([])
-  const [variables, setVariables] = useState([])
+  // const [variables, setVariables] = useState({})
+  const [floorGeometry, setfloorGeometry] = useState([])
 
 
 
@@ -18,27 +19,49 @@ function App() {
 
 useEffect( () => {
   const getBasics = async () => {
-    const user = await fetchUser()
+    // setVariables() 
+    // const user = await fetchUser()
     // console.log(JSON.stringify(tasksFromServer))
     // console.log(user)
     // console.log( "companyId =" + user.company.companyId)
-    setVariables(...variables,{companyId: user.company.companyId})
-    console.log(variables.companyId)
+    // setVariables(variables["companyId"] =  user.company.companyId)
 
     const buildingList = await fetchBuildings()
     // console.log(buildingList)
     const mainOffice = buildingList.content.filter((building) => building.name === "Main Office").shift()
     // console.log(mainOffice)
-    const mainOfficeID = mainOffice.id
+    // const mainOfficeID = mainOffice.id
     // console.log("mainOfficeID =" + mainOfficeID)
-    const groundFloorId = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift().id
-    // console.log( "groundFloorId =" + groundFloorId)
+    const groundFloor = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift()
+    // console.log( "groundFloorId =" + groundFloor)
+    console.log("groundFloor")
+    console.log(groundFloor)
+    const picGeo = groundFloor.xyGeojson.geometry.coordinates
+    // console.log(picGeo)
+    var groundFloorXMin =  picGeo[0][0], groundFloorXMax =  picGeo[0][0], groundFlooryMin=  picGeo[0][1], groundFlooryMax =  picGeo[0][1]
 
-    const roomsList = await fetchRooms(groundFloorId)
+    for (let index = 1; index < picGeo.length; index++) {
+      const x = picGeo[index][0] 
+      const y = picGeo[index][1] 
+      if(x < groundFloorXMin){
+        groundFloorXMin = x
+      }else if(x < groundFloorXMax ){
+        groundFloorXMax = x
+      }
+      if(y < groundFlooryMin){
+        groundFlooryMin = y
+      }else if(y < groundFlooryMax ){
+        groundFlooryMax = y
+      }
+    }
+    setfloorGeometry({groundFloorXMin, groundFloorXMax, groundFlooryMin, groundFlooryMax})
+    // setVariables(variables["groundFloorId"] =  groundFloor.id)
+
+    const roomsList = await fetchRooms(groundFloor.id)
     roomsList.content.forEach(setRoomBasics)
     setTasks(roomsList.content)
-    console.log("rooms")
-    console.log(roomsList.content)
+    // console.log("rooms")
+    // console.log(roomsList.content)
 
 
     // position stuff I need TODO
@@ -49,7 +72,8 @@ useEffect( () => {
     // const occupancy = await fetchOccupancy(groundFloorId)
     // console.log("occupancy")    
     // console.log(occupancy)
-
+    
+    getTotalDevices(roomsList.content,groundFloor.id)
     
     
     
@@ -74,17 +98,31 @@ function setRoomBasics(room){
       yMax = temp
   }
   room["xMin"] = xMin
-  room["xMax"] = xMin
+  room["xMax"] = xMax
   room["yMin"] = yMin
   room["yMax"] = yMax
 }
 
 // get total devices
-const getTotalDevices = async () =>{
-  const positions = await fetchPositions()
-    console.log("positions")
-    console.log(positions)
+const getTotalDevices = async (tasksX,groundFloorId) =>{
+  const positions = await fetchPositions(groundFloorId)
+    // console.log("positions")
+    // console.log(positions)
+    // console.log(tasksX)
+    // no tasks?
+  var newTasks = tasksX.map((task) => {
+    const devices = positions.content.filter((position) => {
+      
+      return position.x > task.xMin && position.x < task.xMax &&  position.y > task.yMin &&  position.y < task.yMax  
+    })
+    task.totalDevices = devices.length
+    return task
+  })
+  // console.log(newTasks)
+  setTasks(newTasks)
 }
+
+
 
 // fetch user
 const fetchUser = async () => {
@@ -137,7 +175,7 @@ const fetchRooms = async (floorId) => {
 // fetch positions
 const fetchPositions = async (floorId) => {
   const http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
-  // const http = `https://apps.cloud.us.kontakt.io/v2/positions/?&sort=timestamp&floorId=${floorId}`
+  // const http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}`
   // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
 
   // &floorId=${floorId}
@@ -219,7 +257,8 @@ const toggleReminder = (id) => {
       {/* <h1>Testing auto resolve</h1>
       <h2> Hello {name}</h2> */}
       <Header title="Ground Floor" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
-      {/* {tasks.length > 0 ? <Rooms  rooms = {tasks}/> :<div className="loader"></div>} */}
+      {/* <p>{floorGeometry ? "": floorGeometry.shift()}</p> */}
+      {tasks.length > 0 ? <Rooms  rooms = {tasks} floor = {floorGeometry}/> :<div className="loader"></div>}
       
       {showAddTask && <AddTask onAdd = {addTask}/>}
       { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : <p>No rooms to show</p> }
