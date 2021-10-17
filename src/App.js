@@ -25,21 +25,21 @@ useEffect( () => {
     const buildingList = await fetchBuildings()
     // console.log(buildingList)
     const mainOffice = buildingList.content.filter((building) => building.name === "Main Office").shift()
-    console.log(mainOffice)
+    // console.log(mainOffice)
     const mainOfficeID = mainOffice.id
-    console.log("mainOfficeID =" + mainOfficeID)
+    // console.log("mainOfficeID =" + mainOfficeID)
     const groundFloorId = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift().id
-    console.log( "groundFloorId =" + groundFloorId)
+    // console.log( "groundFloorId =" + groundFloorId)
 
     const rooms = await fetchRooms(groundFloorId)
-    console.log(rooms.content)
+    // console.log(rooms.content)
     setTasks(rooms.content)
 
 
     // position stuff I need TODO
-    // const positions = await fetchPositions(groundFloorId)
-    // console.log("positions")
-    // console.log(positions)
+    const positions = await fetchPositions(groundFloorId)
+    console.log("positions")
+    console.log(positions)
 
     // const occupancy = await fetchOccupancy(groundFloorId)
     // console.log("occupancy")    
@@ -103,35 +103,44 @@ const fetchRooms = async (floorId) => {
 
 // fetch positions
 const fetchPositions = async (floorId) => {
-  const http = `https://apps.cloud.us.kontakt.io/v2/positions?
-  page=0
-  &size=20
-  &sort=entityId
-  &entityId=8698207486585742336
-  &attributes%5Battr1%20name%5D=HHlxv&entityName=uRVBhiptsmRb
-  &entityTypeId=2302181965356397568
-  &entityTypeName=dvUNEEAnuYgu
-  &floorId=3553380642136723456
-  &buildingId=3352782155370725376
-  &campusId=
-  &trackingId=cxXImX
-  &lost=false
-  &type=EXdGv
-  &campusId=`
-  const httpT = `https://apps.cloud.us.kontakt.io/v2/positions?
-  sort=lastUpdate,desc
-  &floorId=${floorId}
-  &entityId=
-  &lost=false`
-  const res = await fetch(httpT,{
-    method: 'GET',
-    headers: {
-      "Content-Type" : "application/json",
-      "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-    },
-  })
-  const data = await res.json()
-  return data
+  // const http = `https://apps.cloud.us.kontakt.io/v2/positions/?&sort=timestamp&floorId=${floorId}`
+  // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
+
+  // &floorId=${floorId}
+  // &lost=false
+  // console.log("junk")
+  var total = []
+  for (let index = 10; index < 23; index++) {
+    var httpFor = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T${index}:00:00Z&endTime=2021-10-13T${index+1}:00:00Z`
+    const res = await fetch(httpFor,{
+      method: 'GET',
+      headers: {
+        "Content-Type" : "application/json",
+        "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+      },
+    })
+    const data = await res.json()
+    total.push(data) 
+  }
+  // var res = await fetch(http,{
+  //   method: 'GET',
+  //   headers: {
+  //     "Content-Type" : "application/json",
+  //     "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+  //   },
+  // })
+  // var data = await res.json()
+  // total.push(data)
+  // res = await fetch(httpT,{
+  //   method: 'GET',
+  //   headers: {
+  //     "Content-Type" : "application/json",
+  //     "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+  //   },
+  // })
+  // data = await res.json()
+  // total.push(data)
+  return total
 }
 
 // fetch occupancy
@@ -175,7 +184,7 @@ const toggleReminder = (id) => {
       {/* <h1>Testing auto resolve</h1>
       <h2> Hello {name}</h2> */}
       <Header title="Ground Floor" onAdd = {() => setShowAddTask(!showAddTask)} showAdd = {showAddTask} />
-      {tasks.length > 0 ? <Rooms  rooms = {tasks}/> :<div className="loader"></div>}
+      {/* {tasks.length > 0 ? <Rooms  rooms = {tasks}/> :<div className="loader"></div>} */}
       
       {showAddTask && <AddTask onAdd = {addTask}/>}
       { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : <p>No rooms to show</p> }
