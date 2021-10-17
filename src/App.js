@@ -10,6 +10,7 @@ function App() {
   const[showAddTask,setShowAddTask] = useState(false)
 
   const [tasks, setTasks] = useState([])
+  const [variables, setVariables] = useState([])
 
 
 
@@ -20,7 +21,9 @@ useEffect( () => {
     const user = await fetchUser()
     // console.log(JSON.stringify(tasksFromServer))
     // console.log(user)
-    console.log( "companyId =" + user.company.companyId)
+    // console.log( "companyId =" + user.company.companyId)
+    setVariables(...variables,{companyId: user.company.companyId})
+    console.log(variables.companyId)
 
     const buildingList = await fetchBuildings()
     // console.log(buildingList)
@@ -31,15 +34,17 @@ useEffect( () => {
     const groundFloorId = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift().id
     // console.log( "groundFloorId =" + groundFloorId)
 
-    const rooms = await fetchRooms(groundFloorId)
-    // console.log(rooms.content)
-    setTasks(rooms.content)
+    const roomsList = await fetchRooms(groundFloorId)
+    roomsList.content.forEach(setRoomBasics)
+    setTasks(roomsList.content)
+    console.log("rooms")
+    console.log(roomsList.content)
 
 
     // position stuff I need TODO
-    const positions = await fetchPositions(groundFloorId)
-    console.log("positions")
-    console.log(positions)
+    // const positions = await fetchPositions(groundFloorId)
+    // console.log("positions")
+    // console.log(positions)
 
     // const occupancy = await fetchOccupancy(groundFloorId)
     // console.log("occupancy")    
@@ -52,6 +57,34 @@ useEffect( () => {
   getBasics()
   
 },[])
+
+// set room basics
+function setRoomBasics(room){
+  room["totalDevices"] = 0
+  const geoPoints = room.xyGeojson.geometry.coordinates[0]
+  var xMin = geoPoints[0][0], xMax = geoPoints[2][0], yMin = geoPoints[0][1], yMax = geoPoints[2][1]
+  if(xMax < xMin){
+      const temp = xMin
+      xMin = xMax
+      xMax = temp
+  }
+  if(yMax < yMin){
+      const temp = yMin
+      yMin = yMax
+      yMax = temp
+  }
+  room["xMin"] = xMin
+  room["xMax"] = xMin
+  room["yMin"] = yMin
+  room["yMax"] = yMax
+}
+
+// get total devices
+const getTotalDevices = async () =>{
+  const positions = await fetchPositions()
+    console.log("positions")
+    console.log(positions)
+}
 
 // fetch user
 const fetchUser = async () => {
@@ -103,34 +136,36 @@ const fetchRooms = async (floorId) => {
 
 // fetch positions
 const fetchPositions = async (floorId) => {
+  const http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
   // const http = `https://apps.cloud.us.kontakt.io/v2/positions/?&sort=timestamp&floorId=${floorId}`
   // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
 
   // &floorId=${floorId}
   // &lost=false
   // console.log("junk")
-  var total = []
-  for (let index = 10; index < 23; index++) {
-    var httpFor = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T${index}:00:00Z&endTime=2021-10-13T${index+1}:00:00Z`
-    const res = await fetch(httpFor,{
-      method: 'GET',
-      headers: {
-        "Content-Type" : "application/json",
-        "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-      },
-    })
-    const data = await res.json()
-    total.push(data) 
-  }
-  // var res = await fetch(http,{
-  //   method: 'GET',
-  //   headers: {
-  //     "Content-Type" : "application/json",
-  //     "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-  //   },
-  // })
-  // var data = await res.json()
+  // var total = []
+  // for (let index = 10; index < 23; index++) {
+  //   var httpFor = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T${index}:00:00Z&endTime=2021-10-13T${index+1}:00:00Z`
+  //   const res = await fetch(httpFor,{
+  //     method: 'GET',
+  //     headers: {
+  //       "Content-Type" : "application/json",
+  //       "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+  //     },
+  //   })
+  //   const data = await res.json()
+  //   total.push(data) 
+  // }
+  var res = await fetch(http,{
+    method: 'GET',
+    headers: {
+      "Content-Type" : "application/json",
+      "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+    },
+  })
+  var data = await res.json()
   // total.push(data)
+  return data
   // res = await fetch(httpT,{
   //   method: 'GET',
   //   headers: {
@@ -140,7 +175,7 @@ const fetchPositions = async (floorId) => {
   // })
   // data = await res.json()
   // total.push(data)
-  return total
+  // return total
 }
 
 // fetch occupancy

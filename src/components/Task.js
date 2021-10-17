@@ -7,6 +7,9 @@ const Task = ({task, onDelete, onToggle}) => {
             /></h3>
             <p>{task.day}</p> */}
             <h3> {task.name }</h3>
+            <p>
+                total devices = {task.totalDevices}
+            </p>
         </div>
     )
 }
