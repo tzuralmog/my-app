@@ -35,7 +35,7 @@ useEffect( () => {
     const groundFloor = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift()
     // console.log( "groundFloorId =" + groundFloor)
     // console.log("groundFloor")
-    console.log(groundFloor)
+    // console.log(groundFloor)
     const picGeo = groundFloor.imageXyGeojson.geometry.coordinates[0]
     // console.log("picGeo")
     // console.log(picGeo)
@@ -116,11 +116,24 @@ const getTotalDevices = async (tasksX,groundFloorId) =>{
     // console.log(tasksX)
     // no tasks?
   var newTasks = tasksX.map((task) => {
-    const devices = positions.content.filter((position) => {
+    // console.log("positions")
+    // console.log(positions)
+    var devices =0
+    for (let index = 0; index < positions.length; index++) {
+      // console.log("position")
+      const pos = positions[index]
       
-      return position.x > task.xMin && position.x < task.xMax &&  position.y > task.yMin &&  position.y < task.yMax  
-    })
-    task.totalDevices = devices.length
+      const devi = pos.filter((position) => {
+        // console.log("test")
+        return position.x > task.xMin && position.x < task.xMax &&  position.y > task.yMin &&  position.y < task.yMax  
+      })
+      devices += devi.length
+      // console.log("pos")
+      // console.log(pos)
+    }
+    // console.log("devices")
+    // console.log(devices)
+    task.totalDevices = devices
     return task
   })
   // console.log(newTasks)
@@ -179,46 +192,49 @@ const fetchRooms = async (floorId) => {
 
 // fetch positions
 const fetchPositions = async (floorId) => {
-  const http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
-  // const http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}`
+  // var http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
+  var http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}&lost=false`
   // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
 
   // &floorId=${floorId}
   // &lost=false
   // console.log("junk")
-  // var total = []
-  // for (let index = 10; index < 23; index++) {
-  //   var httpFor = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T${index}:00:00Z&endTime=2021-10-13T${index+1}:00:00Z`
-  //   const res = await fetch(httpFor,{
-  //     method: 'GET',
-  //     headers: {
-  //       "Content-Type" : "application/json",
-  //       "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-  //     },
-  //   })
-  //   const data = await res.json()
-  //   total.push(data) 
-  // }
-  var res = await fetch(http,{
-    method: 'GET',
-    headers: {
-      "Content-Type" : "application/json",
-      "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-    },
-  })
-  var data = await res.json()
-  // total.push(data)
-  return data
-  // res = await fetch(httpT,{
+  var total = []
+  while (http !== undefined) {
+    var res = await fetch(http,{
+      mode: 'cors',
+      method: 'GET',
+      headers: {
+        "Content-Type" : "application/json",
+        "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
+      },
+      redirect: 'follow'
+    })
+    var data = await res.json()
+    total.push(data.content)
+    // const link =  data.links.filter((link) => {return link.rel === "next"})
+    // console.log("link")
+    // console.log(link)
+
+    // if(link.length === undefined){
+    //   http = link[0].href
+    // }else{
+    //   http = undefined
+    // }
+    http = undefined
+    // console.log(http)
+  }
+  // var res = await fetch(http,{
   //   method: 'GET',
   //   headers: {
   //     "Content-Type" : "application/json",
   //     "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
   //   },
   // })
-  // data = await res.json()
-  // total.push(data)
-  // return total
+  // var data = await res.json()
+  // total.push(data.content)
+  // console.log(data.links.filter((link) => {return link.rel === "next"})[0].href)
+  return total
 }
 
 // fetch occupancy
