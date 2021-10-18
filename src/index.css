@@ -134,14 +134,43 @@ footer {
 
 .roomBox {
   position: absolute;
-  background-color: rgba(20, 20, 150, 0.473);
+  /* background-blend-mode: ; */
+  background-color: rgba(150, 1, 1, 0.37);
   /* opacity: 20%; */
+  border-style: solid ;
 }
 
 .roomBoxTitle {
-  opacity: 100%;
+  /* opacity: 100%; */
+  /* margin: auto;
+  text-align: center; */
+  margin: 0;
+  position: absolute;
+  left: 0%;
+  bottom: 0%;
+  background-color: rgb(0, 204, 255);
+  width: 10vw;
+  height: 4vw;
+  max-width: 100%;
+  max-height: 20%;
+  /* max-width: 70%;
+  max-height: 2vw; */
+  border-style: solid ;
 }
 
 .pictureDiv{
   position: relative;
+}
+
+.textOutline{
+  left: 0%;
+  bottom: 0%;
+  font-size: 1vw;
+  background-color: rgb(0, 0, 0);
+  color: white;
+  text-shadow:
+		-1px -1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
 }

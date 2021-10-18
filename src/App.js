@@ -34,23 +34,23 @@ useEffect( () => {
     // console.log("mainOfficeID =" + mainOfficeID)
     const groundFloor = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift()
     // console.log( "groundFloorId =" + groundFloor)
-    console.log("groundFloor")
+    // console.log("groundFloor")
     console.log(groundFloor)
-    const picGeo = groundFloor.xyGeojson.geometry.coordinates
+    const picGeo = groundFloor.imageXyGeojson.geometry.coordinates[0]
+    // console.log("picGeo")
     // console.log(picGeo)
     var groundFloorXMin =  picGeo[0][0], groundFloorXMax =  picGeo[0][0], groundFlooryMin=  picGeo[0][1], groundFlooryMax =  picGeo[0][1]
-
     for (let index = 1; index < picGeo.length; index++) {
       const x = picGeo[index][0] 
       const y = picGeo[index][1] 
       if(x < groundFloorXMin){
         groundFloorXMin = x
-      }else if(x < groundFloorXMax ){
+      }else if(x > groundFloorXMax ){
         groundFloorXMax = x
       }
       if(y < groundFlooryMin){
         groundFlooryMin = y
-      }else if(y < groundFlooryMax ){
+      }else if(y > groundFlooryMax ){
         groundFlooryMax = y
       }
     }
@@ -86,17 +86,22 @@ useEffect( () => {
 function setRoomBasics(room){
   room["totalDevices"] = 0
   const geoPoints = room.xyGeojson.geometry.coordinates[0]
-  var xMin = geoPoints[0][0], xMax = geoPoints[2][0], yMin = geoPoints[0][1], yMax = geoPoints[2][1]
-  if(xMax < xMin){
-      const temp = xMin
-      xMin = xMax
-      xMax = temp
-  }
-  if(yMax < yMin){
-      const temp = yMin
-      yMin = yMax
-      yMax = temp
-  }
+  var xMin = geoPoints[0][0], xMax = geoPoints[0][0], yMin = geoPoints[0][1], yMax = geoPoints[0][1]
+
+  for (let index = 1; index < geoPoints.length; index++) {
+      const x = geoPoints[index][0] 
+      const y = geoPoints[index][1] 
+      if(x < xMin){
+        xMin = x
+      }else if(x > xMax ){
+        xMax = x
+      }
+      if(y < yMin){
+        yMin = y
+      }else if(y > yMax ){
+        yMax = y
+      }
+    }
   room["xMin"] = xMin
   room["xMax"] = xMax
   room["yMin"] = yMin
@@ -260,8 +265,8 @@ const toggleReminder = (id) => {
       {/* <p>{floorGeometry ? "": floorGeometry.shift()}</p> */}
       {tasks.length > 0 ? <Rooms  rooms = {tasks} floor = {floorGeometry}/> :<div className="loader"></div>}
       
-      {showAddTask && <AddTask onAdd = {addTask}/>}
-      { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : <p>No rooms to show</p> }
+      {/* {showAddTask && <AddTask onAdd = {addTask}/>}
+      { tasks.length > 0 ? <Tasks tasks = {tasks}  onDelete = {deleteTask} onToggle = {toggleReminder} /> : <p>No rooms to show</p> } */}
       {/* <canvas id="myCanvas" width="200" height="100"></canvas> */}
       
       
