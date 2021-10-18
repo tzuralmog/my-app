@@ -192,8 +192,8 @@ const fetchRooms = async (floorId) => {
 
 // fetch positions
 const fetchPositions = async (floorId) => {
-  // var http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
-  var http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}&lost=false`
+  var http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
+  // var http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}&lost=false`
   // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
 
   // &floorId=${floorId}
