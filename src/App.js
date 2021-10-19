@@ -85,10 +85,6 @@ function setRoomBasics(room){
 // get total devices
 const getTotalDevices = async (tasksX,groundFloorId) =>{
   const positions = await fetchPositions(groundFloorId)
-    // console.log("positions")
-    // console.log(positions)
-    // console.log(tasksX)
-    // no tasks?
   var newTasks = tasksX.map((task) => {
     var devices =0
     for (let index = 0; index < positions.length; index++) {
@@ -157,8 +153,9 @@ const fetchRooms = async (floorId) => {
 
 // fetch positions
 const fetchPositions = async (floorId) => {
-  var http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
-  // var http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}&lost=false`
+  var page = 0
+  var http = `https://apps.cloud.us.kontakt.io/v2/positions/history?page=${page}&sort=timestamp&floorId=${floorId}`
+  // var http = `https://apps.cloud.us.kontakt.io/v2/positions?page=${page}&size=1000&sort=timestamp,desc&floorId=${floorId}&lost=false`
   // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
   var total = []
   while (http !== undefined) {
@@ -172,9 +169,17 @@ const fetchPositions = async (floorId) => {
       redirect: 'follow'
     })
     var data = await res.json()
+    console.log("data")
+    console.log(data)
     total.push(data.content)
-
-    http = undefined
+    if(data.links.filter( (link) => {return link.rel === "next"}).length !== 0){
+      page++
+      http = `https://apps.cloud.us.kontakt.io/v2/positions/history?page=${page}&sort=timestamp&floorId=${floorId}`
+      // http = `https://apps.cloud.us.kontakt.io/v2/positions?page=${page}&size=1000&sort=timestamp,desc&floorId=${floorId}&lost=false`
+      console.log(http)
+    }else{
+      http = undefined
+    }
   }
   return total
 }
