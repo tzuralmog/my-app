@@ -10,35 +10,22 @@ function App() {
   const[showAddTask,setShowAddTask] = useState(false)
 
   const [tasks, setTasks] = useState([])
-  // const [variables, setVariables] = useState({})
   const [floorGeometry, setfloorGeometry] = useState([])
 
 
 
-// var companyId , mainOfficeID  , groundFloorId 
 
 useEffect( () => {
   const getBasics = async () => {
-    // setVariables() 
     // const user = await fetchUser()
-    // console.log(JSON.stringify(tasksFromServer))
-    // console.log(user)
-    // console.log( "companyId =" + user.company.companyId)
-    // setVariables(variables["companyId"] =  user.company.companyId)
+
 
     const buildingList = await fetchBuildings()
-    // console.log(buildingList)
     const mainOffice = buildingList.content.filter((building) => building.name === "Main Office").shift()
-    // console.log(mainOffice)
-    // const mainOfficeID = mainOffice.id
-    // console.log("mainOfficeID =" + mainOfficeID)
     const groundFloor = mainOffice.floors.filter((floor) => floor.name === "Ground Floor").shift()
-    // console.log( "groundFloorId =" + groundFloor)
-    // console.log("groundFloor")
-    // console.log(groundFloor)
+
     const picGeo = groundFloor.imageXyGeojson.geometry.coordinates[0]
-    // console.log("picGeo")
-    // console.log(picGeo)
+
     var groundFloorXMin =  picGeo[0][0], groundFloorXMax =  picGeo[0][0], groundFlooryMin=  picGeo[0][1], groundFlooryMax =  picGeo[0][1]
     for (let index = 1; index < picGeo.length; index++) {
       const x = picGeo[index][0] 
@@ -55,24 +42,11 @@ useEffect( () => {
       }
     }
     setfloorGeometry({groundFloorXMin, groundFloorXMax, groundFlooryMin, groundFlooryMax})
-    // setVariables(variables["groundFloorId"] =  groundFloor.id)
 
     const roomsList = await fetchRooms(groundFloor.id)
     roomsList.content.forEach(setRoomBasics)
     setTasks(roomsList.content)
-    // console.log("rooms")
-    // console.log(roomsList.content)
 
-
-    // position stuff I need TODO
-    // const positions = await fetchPositions(groundFloorId)
-    // console.log("positions")
-    // console.log(positions)
-
-    // const occupancy = await fetchOccupancy(groundFloorId)
-    // console.log("occupancy")    
-    // console.log(occupancy)
-    
     getTotalDevices(roomsList.content,groundFloor.id)
     
     
@@ -116,27 +90,18 @@ const getTotalDevices = async (tasksX,groundFloorId) =>{
     // console.log(tasksX)
     // no tasks?
   var newTasks = tasksX.map((task) => {
-    // console.log("positions")
-    // console.log(positions)
     var devices =0
     for (let index = 0; index < positions.length; index++) {
-      // console.log("position")
       const pos = positions[index]
       
       const devi = pos.filter((position) => {
-        // console.log("test")
         return position.x > task.xMin && position.x < task.xMax &&  position.y > task.yMin &&  position.y < task.yMax  
       })
       devices += devi.length
-      // console.log("pos")
-      // console.log(pos)
     }
-    // console.log("devices")
-    // console.log(devices)
     task.totalDevices = devices
     return task
   })
-  // console.log(newTasks)
   setTasks(newTasks)
 }
 
@@ -195,10 +160,6 @@ const fetchPositions = async (floorId) => {
   var http = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}`
   // var http = `https://apps.cloud.us.kontakt.io/v2/positions?&sort=timestamp&floorId=${floorId}&lost=false`
   // const httpT = `https://apps.cloud.us.kontakt.io/v2/positions/history?&sort=timestamp&floorId=${floorId}&startTime=2021-10-13T09:00:00Z&endTime=2021-05-18T10:00:00Z`
-
-  // &floorId=${floorId}
-  // &lost=false
-  // console.log("junk")
   var total = []
   while (http !== undefined) {
     var res = await fetch(http,{
@@ -212,28 +173,9 @@ const fetchPositions = async (floorId) => {
     })
     var data = await res.json()
     total.push(data.content)
-    // const link =  data.links.filter((link) => {return link.rel === "next"})
-    // console.log("link")
-    // console.log(link)
 
-    // if(link.length === undefined){
-    //   http = link[0].href
-    // }else{
-    //   http = undefined
-    // }
     http = undefined
-    // console.log(http)
   }
-  // var res = await fetch(http,{
-  //   method: 'GET',
-  //   headers: {
-  //     "Content-Type" : "application/json",
-  //     "Api-Key" : "ilcGMcUsxAQEUWGHZPHiCTCqVafdMfFx",
-  //   },
-  // })
-  // var data = await res.json()
-  // total.push(data.content)
-  // console.log(data.links.filter((link) => {return link.rel === "next"})[0].href)
   return total
 }
 
